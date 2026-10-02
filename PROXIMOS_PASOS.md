@@ -4,7 +4,7 @@ Resumen de lo hablado hasta ahora y plan de trabajo por fases. El análisis téc
 
 ## Dónde estamos
 
-- El juego completo está en `index.html`, un único archivo sin dependencias de compilación.
+- El juego está separado en `index.html`, `css/`, `js/` y `diccionario/`, sin paso de compilación: se abre con doble clic o desde cualquier web estática.
 - Tiene tres modos:
   - **Solo:** se responde en pantalla.
   - **Por equipos:** de 2 a 6 equipos con un solo dispositivo; las respuestas se apuntan en papel y luego se introducen.
@@ -28,19 +28,20 @@ Resumen de lo hablado hasta ahora y plan de trabajo por fases. El análisis téc
 
 ---
 
-## Fase 0: separar el código y sacar el diccionario (lo primero)
+## Fase 0: separar el código y sacar el diccionario (hecha)
 
 Es la base para todo lo demás: hoy cualquier cambio toca un archivo de 425 KB con el diccionario en medio, y el diccionario no se puede corregir porque no está la lista original.
 
-- [ ] **Separar en archivos:**
+- [x] **Separar en archivos:**
   - `index.html`: solo la estructura.
   - `css/estilos.css`: los estilos.
   - `js/`: un archivo por parte (utilidades, diccionario, cifras, reloj, letras, online…).
   - `diccionario/`: los datos de las palabras.
-- [ ] **Scripts clásicos (`<script src>`), no módulos ES**, para que el juego siga funcionando al abrir `index.html` con doble clic (`file://`), donde el navegador bloquea `fetch()` y los módulos.
-- [ ] **Diccionario como archivo `.js`** que deja los datos comprimidos en una variable global. Se carga igual con doble clic que desde una web.
-- [ ] **Lista de palabras en texto plano** en el repositorio (441.756 palabras), con un script que genera el archivo comprimido a partir de ella. Así se pueden añadir o corregir palabras.
-- [ ] **Comprobar que todo sigue funcionando igual:** los tres modos, el diccionario, el resolvedor de cifras y el juego sin conexión.
+- [x] **Scripts clásicos (`<script src>`), no módulos ES**, para que el juego siga funcionando al abrir `index.html` con doble clic (`file://`), donde el navegador bloquea `fetch()` y los módulos.
+- [x] **Diccionario como archivo `.js`** que deja los datos comprimidos en una variable global. Se carga igual con doble clic que desde una web.
+- [x] **Lista de palabras en texto plano** en el repositorio (441.757 palabras), con un script que genera el archivo comprimido a partir de ella. Así se pueden añadir o corregir palabras.
+- [x] **Comprobar que todo sigue funcionando igual.** Probado en Chromium abriendo el archivo con doble clic: diccionario, letras y cifras en solitario y modo por equipos, con el mismo resultado que la versión anterior.
+- [ ] **Probar el modo "Varios móviles"** con dispositivos reales: no se pudo probar en el entorno de desarrollo, aunque su código no ha cambiado.
 
 Esta fase no cambia nada de lo que ve el jugador.
 

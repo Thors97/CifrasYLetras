@@ -25,7 +25,7 @@ Revisión del código de `index.html`: puntos fuertes y partes mejorables, orden
 
 ---
 
-## Fase 0: lo primero (base para todo lo demás)
+## Fase 0: lo primero (base para todo lo demás) — hecha
 
 ### 0.1 Todo está en un solo archivo de 425 KB
 - **Problema:** unas 1.400 líneas de código con funciones globales, CSS y el diccionario en medio. Cada cambio de las fases siguientes toca este archivo, y los diffs son difíciles de revisar en git.
@@ -34,7 +34,7 @@ Revisión del código de `index.html`: puntos fuertes y partes mejorables, orden
 
 ### 0.2 El diccionario está incrustado y no se puede regenerar
 - **Dónde:** línea 263.
-- **Problema:** el repositorio solo tiene el diccionario ya comprimido en base64 (441.756 palabras), sin la lista original ni el script que lo genera. Corregir o añadir una palabra es muy difícil.
+- **Problema:** el repositorio solo tiene el diccionario ya comprimido en base64 (441.757 palabras), sin la lista original ni el script que lo genera. Corregir o añadir una palabra es muy difícil.
 - **Mejora:**
   - Guardar la lista de palabras en texto plano en el repositorio.
   - Añadir un script que genere el archivo comprimido a partir de ella.
