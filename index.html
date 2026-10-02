@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cifras y Letras</title>
+<meta name="description" content="Juego de Cifras y Letras en castellano con las normas del concurso. Para jugar solo o por equipos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilos.css">
+<script src="js/tema.js"></script>
+</head>
+<body>
+<a class="skip" href="#app">Ir al juego</a>
+<header class="top">
+  <h1 class="brand"><span class="chip c">Cifras</span><span class="y">y</span><span class="chip l">Letras</span></h1>
+  <div class="top-actions"><button type="button" class="btn small icon" id="theme-btn" aria-label="Tema: Automático. Cambiar tema"></button><button type="button" class="btn small" id="quit-btn" hidden>Salir</button></div>
+</header>
+<ul class="scores" id="scores" aria-label="Marcador" hidden></ul>
+<main id="app" tabindex="-1"></main>
+<div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<div id="alert" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+<dialog id="dlg-quit" aria-labelledby="dlg-quit-h">
+  <form method="dialog">
+    <h2 id="dlg-quit-h">¿Salir de la partida?</h2>
+    <p id="dlg-quit-p">Se perderá la puntuación de esta partida.</p>
+    <div class="row end">
+      <button class="btn" value="cancel">Seguir jugando</button>
+      <button class="btn danger" value="ok">Salir</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="diccionario/datos.js"></script>
+<script src="js/utilidades.js"></script>
+<script src="js/diccionario.js"></script>
+<script src="js/resolvedor.js"></script>
+<script src="js/sorteos.js"></script>
+<script src="js/estado.js"></script>
+<script src="js/reloj.js"></script>
+<script src="js/inicio.js"></script>
+<script src="js/letras.js"></script>
+<script src="js/cifras.js"></script>
+<script src="js/final.js"></script>
+<script src="js/online.js"></script>
+<script src="js/arranque.js"></script>
+</body>
+</html>
