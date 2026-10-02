@@ -6,6 +6,7 @@
   --studio:#1B2A6B; --studio-ink:#FFFFFF;
   --ok:#1C7448; --ok-soft:#D9F0E3; --bad:#B42318; --bad-soft:#FBE1DE;
   --focus:#2F6BFF;
+  --qr-bg:#FFFFFF; --qr-fg:#131F49;
   --font:"Bricolage Grotesque", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-tile:"Archivo", "Arial Black", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
   color-scheme:light;
@@ -18,7 +19,7 @@
     --cifras:#F4BE3A; --cifras-ink:#131F49; --cifras-soft:#45391A; --cifras-text:#F4BE3A;
     --studio:#3048B0; --studio-ink:#FFFFFF;
     --ok:#5BD08F; --ok-soft:#173D2C; --bad:#FF8A80; --bad-soft:#4A1E26;
-    --focus:#8FB0FF; color-scheme:dark;
+    --focus:#8FB0FF; --qr-bg:#EEF1FA; --qr-fg:#0D1636; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
@@ -28,7 +29,7 @@
   --cifras:#F4BE3A; --cifras-ink:#131F49; --cifras-soft:#45391A; --cifras-text:#F4BE3A;
   --studio:#3048B0; --studio-ink:#FFFFFF;
   --ok:#5BD08F; --ok-soft:#173D2C; --bad:#FF8A80; --bad-soft:#4A1E26;
-  --focus:#8FB0FF; color-scheme:dark;
+  --focus:#8FB0FF; --qr-bg:#EEF1FA; --qr-fg:#0D1636; color-scheme:dark;
 }
 :root{box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);}
 html{scroll-padding-top:env(safe-area-inset-top,0px);}
@@ -265,6 +266,10 @@ body.pantalla .hist{font-size:1em}
 body.pantalla .panel{padding:1em 1.4em}
 body.pantalla .room-code .tile{width:clamp(80px, 8vw, 150px); font-size:clamp(3rem, 5.5vw, 6rem)}
 .lobby-screen{display:grid; grid-template-columns:minmax(0,1fr) minmax(220px, 30vw); gap:4vw; align-items:start}
-.lobby-qr{background:#fff; padding:14px; border-radius:20px; box-shadow:0 8px 30px rgba(0,0,0,.25); align-self:center}
-.lobby-qr .qr{display:block; width:100%; height:auto}
+.lobby-qr{background:var(--qr-bg); padding:16px; border-radius:22px; border:3px solid var(--studio); box-shadow:0 10px 34px rgba(0,0,0,.28); align-self:center}
+:root[data-theme="dark"] .lobby-qr{box-shadow:0 0 0 4px var(--line), 0 10px 40px rgba(0,0,0,.55)}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .lobby-qr{box-shadow:0 0 0 4px var(--line), 0 10px 40px rgba(0,0,0,.55)} }
+.lobby-qr .qr{display:block; width:100%; height:auto; border-radius:8px}
+.qr .qr-bg{fill:var(--qr-bg)}
+.qr .qr-fg{fill:var(--qr-fg)}
 @media (max-width:760px){ .lobby-screen{grid-template-columns:1fr} .lobby-qr{max-width:320px} }

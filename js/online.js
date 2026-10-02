@@ -48,7 +48,7 @@ function qrSvg(text){
     const q = qrcode(0, 'M'); q.addData(text); q.make();
     const n = q.getModuleCount(), m = 4; let d = '';
     for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c + m} ${r + m}h1v1h-1z`;
-    return `<svg class="qr" viewBox="0 0 ${n + 2 * m} ${n + 2 * m}" role="img" aria-label="Código QR para entrar en la sala" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+    return `<svg class="qr" viewBox="0 0 ${n + 2 * m} ${n + 2 * m}" role="img" aria-label="Código QR para entrar en la sala" shape-rendering="crispEdges"><rect class="qr-bg" width="100%" height="100%"/><path class="qr-fg" d="${d}"/></svg>`;
   }catch(e){ return ''; }
 }
 function onlineSend(m){
