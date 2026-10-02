@@ -53,6 +53,7 @@ Esta fase no cambia nada de lo que ve el jugador.
 - [x] **Cifras: atajos de teclado.** Se escriben los números y `+ − × ÷` (o `* /`); Retroceso deshace, Esc cancela la selección e Intro entrega. Solo se muestra la ayuda en dispositivos con ratón.
 - [x] **Botón de tema** automático, claro u oscuro, que se recuerda entre visitas.
 - [x] **Validar los ajustes guardados** al cargarlos: cada valor no válido se sustituye por el de por defecto.
+- [x] **Repaso visual** en móvil y escritorio, claro y oscuro: botón de tema compacto con icono (ya no descuadra la cabecera en móvil), reloj "Sin límite de tiempo" como etiqueta en vez de círculo, fichas de cifras que ya no se desvanecen al ver los resultados y tabla final que cabe en pantallas estrechas.
 - [ ] **Online: un nombre repetido puede quitarle el sitio a otro jugador** (ANALISIS.md, 1.3). Aplazado porque el modo online no es prioritario.
 
 ## Fase 2: publicar el juego (prioridad alta)

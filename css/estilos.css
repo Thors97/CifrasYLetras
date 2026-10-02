@@ -50,7 +50,9 @@ button,input{font:inherit; color:inherit}
 .brand .c{background:var(--cifras); color:var(--cifras-ink)}
 .brand .l{background:var(--letras); color:var(--letras-ink)}
 .brand .y{font-weight:500; color:var(--muted); font-size:1.05rem}
-.top-actions{margin-left:auto; display:flex; gap:8px}
+.top-actions{margin-left:auto; display:flex; gap:8px; flex-wrap:nowrap}
+.btn.icon{width:40px; padding:0}
+.btn.icon svg{display:block; width:22px; height:22px; max-width:none; flex:none}
 .scores{list-style:none; margin:0; padding:0 18px 4px; max-width:780px; margin-inline:auto; display:flex; gap:8px; flex-wrap:wrap}
 .scores li{display:flex; align-items:baseline; gap:8px; background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:5px 12px 5px 14px; font-size:.95rem}
 .scores li.turn{border-color:var(--studio); box-shadow:0 0 0 1px var(--studio)}
@@ -122,16 +124,18 @@ details.rules li{margin-bottom:6px; max-width:62ch}
 .board{display:grid; grid-template-columns:auto 1fr; gap:18px; align-items:center; margin:16px 0 8px}
 @media (max-width:600px){ .board{grid-template-columns:1fr; justify-items:center; gap:12px} }
 .clock{position:relative; width:128px; height:128px; flex:none}
-@media (max-width:600px){ .clock{width:96px; height:96px} }
+@media (max-width:600px){ .clock{width:96px; height:96px} .clock.free{width:auto; height:auto} }
 .clock svg{width:100%; height:100%; transform:rotate(-90deg); display:block}
 .clock .track{fill:var(--surface); stroke:var(--line); stroke-width:10}
 .clock .arc{fill:none; stroke-width:10; stroke-linecap:round}
 .round-l .clock .arc{stroke:var(--letras)}
 .round-c .clock .arc{stroke:var(--cifras)}
 .clock .num{position:absolute; inset:0; display:grid; place-items:center; font-weight:800; font-family:var(--font-tile); font-size:2.6rem; font-variant-numeric:tabular-nums; line-height:1}
-@media (max-width:600px){ .clock .num{font-size:2rem} }
+@media (max-width:600px){ .clock .num{font-size:2rem} .clock.free .num{font-size:.98rem} }
 .clock.low .num{color:var(--letras-text)}
-.clock.free .num{font-family:var(--font); font-size:1rem; text-align:center; padding:12px; font-weight:700; color:var(--muted)}
+.clock.free{width:auto; height:auto}
+.clock.free svg{display:none}
+.clock.free .num{position:static; display:inline-block; font-family:var(--font); font-size:.98rem; font-weight:700; color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:8px 16px}
 .clock-ctl{display:flex; gap:8px; justify-content:center; margin-top:8px}
 .clock-col{display:flex; flex-direction:column; align-items:center}
 
@@ -206,6 +210,7 @@ button.tile:hover{background:var(--surface-2)}
 .hist th,.hist td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap}
 .hist td.n, .hist th.n{text-align:right; font-variant-numeric:tabular-nums}
 .hist tr:last-child td{border-bottom:0}
+@media (max-width:600px){ .hist{font-size:.86rem} .hist th,.hist td{white-space:normal; padding:8px 5px} .hist th:first-child{white-space:nowrap} .hist .tag{font-size:.78rem; padding:1px 5px} }
 .hist .tag{font-weight:800; padding:1px 7px; border-radius:6px; font-size:.85rem}
 .hist .tag.l{background:var(--letras); color:var(--letras-ink)}
 .hist .tag.c{background:var(--cifras); color:var(--cifras-ink)}

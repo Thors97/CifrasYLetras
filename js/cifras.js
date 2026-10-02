@@ -43,6 +43,7 @@ async function cifrasDeal(preset, big){
     ul.appendChild(li);
     if (anim){ beep(520 + i*40, 0.05, 0.05); await sleep(130); if (S.round !== token) return; }
   }
+  setTimeout(() => $$('.tile.deal', ul).forEach(t => t.classList.remove('deal')), 400); // si no, se repite al volver a mostrar las fichas
   const tEl = $('#target');
   if (anim){ const t0 = performance.now(); while (performance.now() - t0 < 900){ tEl.textContent = 100 + rnd(900); await sleep(55); } if (S.round !== token) return; }
   tEl.textContent = target;
