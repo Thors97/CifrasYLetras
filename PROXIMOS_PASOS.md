@@ -28,6 +28,22 @@ Resumen de lo hablado hasta ahora y plan de trabajo por fases. El análisis téc
 
 ---
 
+## Fase 0: separar el código y sacar el diccionario (lo primero)
+
+Es la base para todo lo demás: hoy cualquier cambio toca un archivo de 425 KB con el diccionario en medio, y el diccionario no se puede corregir porque no está la lista original.
+
+- [ ] **Separar en archivos:**
+  - `index.html`: solo la estructura.
+  - `css/estilos.css`: los estilos.
+  - `js/`: un archivo por parte (utilidades, diccionario, cifras, reloj, letras, online…).
+  - `diccionario/`: los datos de las palabras.
+- [ ] **Scripts clásicos (`<script src>`), no módulos ES**, para que el juego siga funcionando al abrir `index.html` con doble clic (`file://`), donde el navegador bloquea `fetch()` y los módulos.
+- [ ] **Diccionario como archivo `.js`** que deja los datos comprimidos en una variable global. Se carga igual con doble clic que desde una web.
+- [ ] **Lista de palabras en texto plano** en el repositorio (441.756 palabras), con un script que genera el archivo comprimido a partir de ella. Así se pueden añadir o corregir palabras.
+- [ ] **Comprobar que todo sigue funcionando igual:** los tres modos, el diccionario, el resolvedor de cifras y el juego sin conexión.
+
+Esta fase no cambia nada de lo que ve el jugador.
+
 ## Fase 1: mejoras rápidas de jugabilidad (prioridad alta)
 
 Cambios pequeños, sin riesgo y muy visibles.
@@ -72,13 +88,12 @@ Es requisito para probar el modo online y la pantalla compartida con dispositivo
 - [ ] **Escala de puntos por distancia en cifras**, si se confirman las normas.
 - [ ] **Modo "palabra de 10 letras"** (anagrama a contrarreloj). Es idea propia; no está confirmado que exista en el concurso.
 - [ ] **Servidor TURN** para que el modo online funcione fuera de la misma wifi. Necesita un servicio externo, posiblemente de pago, y credenciales fuera del repositorio.
-- [ ] **Separar el código en varios archivos** (CSS, JS y diccionario) con un paso de compilación que siga generando un único HTML.
 - [ ] **Tests automáticos** del resolvedor, de la validación de palabras y de la puntuación.
 
 ## Lo que no se recomienda hacer
 
 - Un servidor propio con cuentas, ranking global o salas persistentes: rompe el diseño sin backend y añade mantenimiento y datos personales.
 - Chat de texto en las salas: aporta poco y abre problemas de moderación.
-- Cargar el diccionario desde un servidor: se perdería el juego sin conexión.
+- Cargar el diccionario desde un servidor externo: se perdería el juego sin conexión. Sacarlo a un archivo propio del juego (fase 0) sí es buena idea.
 - Migrar a un framework como React: sobreingeniería para esta interfaz.
 - Que cada invitado valide su propia respuesta: hoy lo valida el anfitrión, que es lo correcto frente a trampas.

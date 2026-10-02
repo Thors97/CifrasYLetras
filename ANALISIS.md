@@ -25,6 +25,23 @@ Revisión del código de `index.html`: puntos fuertes y partes mejorables, orden
 
 ---
 
+## Fase 0: lo primero (base para todo lo demás)
+
+### 0.1 Todo está en un solo archivo de 425 KB
+- **Problema:** unas 1.400 líneas de código con funciones globales, CSS y el diccionario en medio. Cada cambio de las fases siguientes toca este archivo, y los diffs son difíciles de revisar en git.
+- **Mejora:** separar en `index.html`, `css/` y `js/` (un archivo por parte del juego).
+- **Condición:** usar scripts clásicos (`<script src>`), no módulos ES, para que el juego siga funcionando al abrir `index.html` con doble clic. Con `file://` el navegador bloquea `fetch()` y los módulos.
+
+### 0.2 El diccionario está incrustado y no se puede regenerar
+- **Dónde:** línea 263.
+- **Problema:** el repositorio solo tiene el diccionario ya comprimido en base64 (441.756 palabras), sin la lista original ni el script que lo genera. Corregir o añadir una palabra es muy difícil.
+- **Mejora:**
+  - Guardar la lista de palabras en texto plano en el repositorio.
+  - Añadir un script que genere el archivo comprimido a partir de ella.
+  - Cargar el diccionario desde un archivo `.js` propio que deje los datos en una variable global, para que también funcione con doble clic.
+
+---
+
 ## Fase 1: prioridad alta
 
 Problemas de uso que se notan en cada partida, o riesgos con arreglo sencillo.
@@ -125,18 +142,10 @@ Continuidad y comodidad.
 
 ## Fase 4: prioridad baja (mantenimiento)
 
-### 4.1 No se puede regenerar el diccionario
-- **Problema:** el repositorio solo tiene el diccionario ya comprimido (línea 263), sin la lista original ni el script que lo genera. Corregir o añadir una palabra es muy difícil.
-- **Mejora:** guardar la lista de palabras en texto y un script que produzca el bloque comprimido.
+### 4.1 No hay tests
+- **Mejora:** tests automáticos de las partes con lógica pura: `solveCifras`, `checkWord`, `letrasPointsOf`, `cifrasPointsOf` y `verifyAnswer`. Será mucho más fácil después de la fase 0.
 
-### 4.2 Todo está en un solo archivo de 425 KB
-- **Problema:** unas 1.400 líneas de código con funciones globales y el diccionario en medio. Los cambios son incómodos de revisar en git.
-- **Mejora:** separar CSS, JS y diccionario, con un script que vuelva a juntarlos en un único HTML para distribuirlo.
-
-### 4.3 No hay tests
-- **Mejora:** tests automáticos de las partes con lógica pura: `solveCifras`, `checkWord`, `letrasPointsOf`, `cifrasPointsOf` y `verifyAnswer`.
-
-### 4.4 El README está vacío
+### 4.2 El README está vacío
 - **Mejora:** explicar qué es, cómo se juega, cómo se publica y cómo se regenera el diccionario.
 
 ---
