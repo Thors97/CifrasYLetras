@@ -20,7 +20,7 @@ function restore(k){ try{ const v = localStorage.getItem(k); return v ? JSON.par
 /* ================= Sonido ================= */
 let audioCtx = null;
 function beep(freq=880, dur=0.12, vol=0.12){
-  if (!S.settings.sound) return;
+  if (!S.settings.sound || (typeof O !== 'undefined' && O.mute)) return; // con pantalla grande, el sonido sale de ella
   try{
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     const t = audioCtx.currentTime, o = audioCtx.createOscillator(), g = audioCtx.createGain();

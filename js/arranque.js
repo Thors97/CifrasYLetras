@@ -18,6 +18,9 @@ $('#quit-btn').addEventListener('click', () => {
 
 
 /* ================= Arranque ================= */
+$('#fs-btn').addEventListener('click', () => {
+  try{ if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }catch(_){}
+});
 window.addEventListener('hashchange', () => { if (!S.online && $('#f-setup')) renderSetup(); });
 renderSetup();
 loadDict().then(() => {

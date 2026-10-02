@@ -13,7 +13,7 @@ function renderSetup(){
         <div class="modes">
           <div class="mode"><input type="radio" name="mode" id="m-solo" value="solo" ${s.mode==='solo'?'checked':''}><label for="m-solo"><strong>Solo</strong><span>Escribes tu respuesta en la pantalla.</span></label></div>
           <div class="mode"><input type="radio" name="mode" id="m-eq" value="equipos" ${s.mode==='equipos'?'checked':''}><label for="m-eq"><strong>Por equipos</strong><span>De 2 a 6 equipos con un solo dispositivo.</span></label></div>
-          <div class="mode"><input type="radio" name="mode" id="m-on" value="online" ${s.mode==='online'?'checked':''}><label for="m-on"><strong>Varios móviles</strong><span>Cada jugador con su móvil, en una sala.</span></label></div>
+          <div class="mode"><input type="radio" name="mode" id="m-on" value="online" ${s.mode==='online'?'checked':''}><label for="m-on"><strong>Varios móviles</strong><span>Cada jugador con su móvil, con o sin pantalla grande.</span></label></div>
         </div>
       </fieldset>
       <fieldset id="teams-fs" ${s.mode==='equipos'?'':'hidden'}>
@@ -25,9 +25,11 @@ function renderSetup(){
         <legend>Varios móviles</legend>
         <div class="seg" style="margin-bottom:14px">
           <input type="radio" name="orole" id="or-host" value="host" checked><label for="or-host">Crear una sala</label>
+          <input type="radio" name="orole" id="or-screen" value="screen"><label for="or-screen">Crear una sala en una pantalla grande</label>
           <input type="radio" name="orole" id="or-join" value="join"><label for="or-join">Unirme a una sala</label>
         </div>
-        <div class="field" style="margin-bottom:12px"><label for="o-name">Tu nombre</label>
+        <p class="hint" id="o-screen-h" hidden>Este dispositivo (una tele, un portátil o un proyector) enseña el tablero y no juega. Los jugadores entran con su móvil, escaneando un código QR.</p>
+        <div class="field" id="o-name-f" style="margin-bottom:12px"><label for="o-name">Tu nombre</label>
           <input type="text" id="o-name" maxlength="20" autocomplete="nickname" value="${esc(s.name || '')}"></div>
         <div class="field" id="o-code-f" hidden><label for="o-code">Código de la sala</label>
           <input type="text" id="o-code" class="ans-input" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="o-code-h">
@@ -84,6 +86,7 @@ function renderSetup(){
       <h3>Varios móviles</h3>
       <ul>
         <li>Uno crea la sala y los demás entran con el código de 4 letras o con el enlace. Hacen falta de 2 a 8 jugadores.</li>
+        <li>Con «Crear una sala en una pantalla grande», una tele o un portátil enseña el tablero, el reloj y los resultados, sin jugar, y todos responden con su móvil. La pantalla y el primer jugador que entró manejan el paso entre pruebas. Para abrir esa opción directamente, añade <strong>#pantalla</strong> al final de la dirección.</li>
         <li>Cada uno responde en su móvil sin ver lo que escriben los demás. Al acabar el tiempo, o cuando todos han entregado, se revelan las respuestas a la vez.</li>
         <li>Se puntúa como por equipos: gana la prueba quien tiene la palabra más larga o el número más cercano, y los empates puntúan para todos. En cada prueba de letras elige las vocales un jugador distinto; en cifras, los números salen al azar.</li>
         <li>Quien crea la sala maneja el paso entre pruebas y puede dar por válida una palabra que el diccionario rechace. Si alguien pierde la conexión, puede volver a entrar con el mismo nombre.</li>
@@ -118,7 +121,8 @@ function renderSetup(){
     const last = $$('input[type=text]', list).pop(); last.focus(); last.select();
   });
   const syncSetup = () => {
-    const mode = $('input[name=mode]:checked').value, join = mode === 'online' && $('#or-join').checked;
+    const mode = $('input[name=mode]:checked').value, join = mode === 'online' && $('#or-join').checked, screen = mode === 'online' && $('#or-screen').checked;
+    $('#o-name-f').hidden = screen; $('#o-screen-h').hidden = !screen;
     $('#teams-fs').hidden = mode !== 'equipos';
     $('#online-fs').hidden = mode !== 'online';
     $('#o-code-f').hidden = !join;
@@ -129,6 +133,7 @@ function renderSetup(){
   $$('input[name=mode], input[name=orole]').forEach(r => r.addEventListener('change', syncSetup));
   const hc = hashCode();
   if (hc){ $('#m-on').checked = true; $('#or-join').checked = true; $('#o-code').value = hc; }
+  else if (location.hash === '#pantalla'){ $('#m-on').checked = true; $('#or-screen').checked = true; } // enlace directo para la tele
   syncSetup();
   $('#f-setup').addEventListener('submit', e => {
     e.preventDefault();
@@ -136,7 +141,8 @@ function renderSetup(){
     const f = new FormData(e.target);
     Object.assign(S.settings, { mode:f.get('mode'), rounds:+f.get('rounds'), kind:f.get('kind'), time:f.get('time'), sound:$('#sound').checked });
     if (S.settings.mode === 'online'){
-      const name = $('#o-name').value.trim().replace(/\s+/g, ' '), join = $('#or-join').checked;
+      const name = $('#o-name').value.trim().replace(/\s+/g, ' '), join = $('#or-join').checked, screen = $('#or-screen').checked;
+      if (screen){ store('cyl-ajustes', S.settings); unlockAudio(); onlineHost('', true); return; }
       if (!name){ $('#setup-msg').textContent = 'Escribe tu nombre.'; $('#o-name').focus(); return; }
       let code = '';
       if (join){
