@@ -82,7 +82,7 @@ Mejoras de robustez y de la experiencia en grupo.
 - **Mejora a corto plazo:** publicar el juego y probarlo en redes reales. Explicar mejor en el error qué está pasando y qué se puede hacer.
 - **Mejora a largo plazo:** un servidor TURN propio o de un proveedor (ver fase 5).
 
-### 2.2 El anfitrión siempre es el jugador 0
+### 2.2 El anfitrión siempre es el jugador 0 — hecho (fase 3)
 - **Dónde:** líneas 1253, 1312, 1341–1345 y 1515.
 - **Problema:** el código da por hecho en muchos sitios que el anfitrión juega y está en `players[0]`. Eso impide que una tele sea el anfitrión sin jugar.
 - **Mejora:** separar el anfitrión de la lista de jugadores. Es el refactor necesario para la pantalla compartida (opción A en PROXIMOS_PASOS.md).

@@ -4,7 +4,7 @@ const PEER_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min
 const ROOM_PREFIX = 'cifras-letras-';
 const CODE_CHARS = 'BCDFGHJKMNPRSTVXZ';
 const MAX_PLAYERS = 8, GRACE_MS = 3500;
-const O = { role:null, peer:null, conn:null, code:'', name:'', me:-1, P:null, screen:'', leaving:false, wake:null, focusSel:null };
+const O = { pantalla:false, mute:false, role:null, peer:null, conn:null, code:'', name:'', me:-1, P:null, screen:'', leaving:false, wake:null, focusSel:null };
 let H = null; // estado del anfitrión: es quien reparte, comprueba y puntúa
 
 function hashCode(){ const m = /#sala=([A-Za-z]{4})/.exec(location.hash); return m ? m[1].toUpperCase() : null; }
@@ -27,8 +27,32 @@ function secsFor(type){
   if (t === 'libre') return 0;
   return (type === 'L' ? 30 : 40) * (t === 'doble' ? 2 : 1);
 }
+// Cuando el anfitrión es una pantalla (tele o portátil) no juega: los jugadores son todos invitados.
+// El «mando» de la partida lo tienen la pantalla y el primer jugador de la lista.
+const firstGuest = () => H.pantalla ? 0 : 1;
+const adminIdx = () => H.pantalla ? -1 : 0;
+const isAdmin = i => i === adminIdx() || (H.pantalla && i === 0);
+// Modo pantalla: letra y fichas grandes, y botón de pantalla completa.
+function setPantallaUI(on){
+  document.body.classList.toggle('pantalla', !!on);
+  const b = $('#fs-btn'); if (b) b.hidden = !(on && document.fullscreenEnabled);
+  if (!on && document.fullscreenElement){ try{ document.exitFullscreen(); }catch(_){} }
+}
+const canCtl = () => O.role === 'host' || !!(O.P && O.P.pantalla && O.me === 0);
+function focusPrimary(sel, fallback){
+  const b = O.pantalla ? $(sel) : null; // en una tele el mando solo puede pulsar el botón enfocado
+  if (b) b.focus(); else if (fallback) fallback();
+}
+function qrSvg(text){
+  try{
+    const q = qrcode(0, 'M'); q.addData(text); q.make();
+    const n = q.getModuleCount(), m = 4; let d = '';
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c + m} ${r + m}h1v1h-1z`;
+    return `<svg class="qr" viewBox="0 0 ${n + 2 * m} ${n + 2 * m}" role="img" aria-label="Código QR para entrar en la sala" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+  }catch(e){ return ''; }
+}
 function onlineSend(m){
-  if (O.role === 'host'){ if (H) hostMsg(0, m); return; }
+  if (O.role === 'host'){ if (H) hostMsg(adminIdx(), m); return; }
   try{ if (O.conn && O.conn.open) O.conn.send(m); }catch(_){}
 }
 
@@ -47,13 +71,14 @@ function onlineTeardown(){
 }
 function onlineLeave(){
   onlineTeardown(); H = null; O.role = null; S.online = false; S.game = null; S.round = null;
+  O.pantalla = false; O.mute = false; setPantallaUI(false);
   if (hashCode()) history.replaceState(null, '', location.pathname + location.search);
 }
 function onlineFail(msg, retry, title){
   onlineTeardown(); stopClock(); S.game = null; renderScores(); $('#quit-btn').hidden = true;
   app.innerHTML = `<section aria-labelledby="h-fail"><h2 id="h-fail">${esc(title || 'No se ha podido conectar')}</h2><p class="lead">${esc(msg)}</p>
     <div class="row">${retry ? '<button type="button" class="btn primary" id="o-retry">Volver a intentarlo</button>' : ''}<button type="button" class="btn" id="o-back">Volver al inicio</button></div></section>`;
-  if (retry) $('#o-retry').addEventListener('click', () => O.role === 'host' ? onlineHost(O.name) : onlineJoin(O.code, O.name));
+  if (retry) $('#o-retry').addEventListener('click', () => O.role === 'host' ? onlineHost(O.name, O.pantalla) : onlineJoin(O.code, O.name));
   $('#o-back').addEventListener('click', () => { onlineLeave(); renderSetup(); });
   focusHeading(); announce(msg, true);
 }
@@ -68,16 +93,17 @@ function onlineLost(){
 }
 
 /* ---------- Anfitrión ---------- */
-async function onlineHost(name){
+async function onlineHost(name, pantalla){
   onlineTeardown();
-  S.online = true; O.role = 'host'; O.name = name; O.leaving = false;
+  S.online = true; O.role = 'host'; O.name = name; O.leaving = false; O.pantalla = !!pantalla; O.mute = false;
+  setPantallaUI(!!pantalla);
   $('#quit-btn').hidden = false;
   onlineConnecting('Creando la sala…');
   try{ await Promise.all([loadPeerLib(), loadDict()]); }
   catch(e){ return onlineFail('No se ha podido cargar el servicio de conexión. Comprueba tu conexión a internet.', true, 'No se ha podido crear la sala'); }
   const s = S.settings, plan = [];
   for (let i = 0; i < s.rounds; i++) plan.push(s.kind === 'letras' ? 'L' : s.kind === 'cifras' ? 'C' : (i % 2 === 0 ? 'L' : 'C'));
-  H = { settings:{ rounds:s.rounds, kind:s.kind, time:s.time }, players:[{ name, connected:true, score:0 }], conns:[null],
+  H = { pantalla:!!pantalla, settings:{ rounds:s.rounds, kind:s.kind, time:s.time }, players: pantalla ? [] : [{ name, connected:true, score:0 }], conns: pantalla ? [] : [null],
         phase:'lobby', plan, idx:0, history:[], turns:0, chooser:0, round:null, answers:[], submitted:[], results:null, rv:0, timer:null, solution:null, finishing:false, code:'' };
   openHostPeer(0);
 }
@@ -101,7 +127,7 @@ function openHostPeer(attempt){
 function hostState(){
   const R = H.round;
   return {
-    phase:H.phase, code:H.code, settings:H.settings, plan:H.plan, idx:H.idx, chooser:H.chooser, rv:H.rv,
+    pantalla:H.pantalla, phase:H.phase, code:H.code, settings:H.settings, plan:H.plan, idx:H.idx, chooser:H.chooser, rv:H.rv,
     players:H.players.map(p => ({ name:p.name, connected:p.connected, score:p.score })),
     submitted:H.submitted.slice(),
     round: R ? { type:R.type, letters:R.letters, vowels:R.vowels, nums:R.nums, target:R.target, secs:R.secs, remaining: R.deadlineAt ? Math.max(0, R.deadlineAt - Date.now()) : 0 } : null,
@@ -125,7 +151,7 @@ function hostData(conn, d){
   if (!H || !d || typeof d !== 'object') return;
   if (d.t === 'hello') return hostHello(conn, String(d.name || ''));
   const i = H.conns.indexOf(conn);
-  if (i > 0) hostMsg(i, d);
+  if (i >= firstGuest()) hostMsg(i, d);
 }
 function hostReject(conn, why){
   try{ conn.send({ t:'reject', why }); }catch(_){}
@@ -136,8 +162,8 @@ function hostHello(conn, raw){
   if (!name) return hostReject(conn, 'name');
   const low = name.toLowerCase();
   const i = H.players.findIndex(p => p.name.toLowerCase() === low);
-  if (i === 0) return hostReject(conn, 'taken');
-  if (i > 0){
+  if (i >= 0 && i < firstGuest()) return hostReject(conn, 'taken');
+  if (i >= firstGuest()){
     const old = H.conns[i];
     const alive = old && old !== conn && old.open && H.players[i].connected;
     if (alive && H.phase === 'lobby') return hostReject(conn, 'taken');
@@ -155,7 +181,7 @@ function hostHello(conn, raw){
 function hostDrop(conn){
   if (!H) return;
   const i = H.conns.indexOf(conn);
-  if (i <= 0) return;
+  if (i < firstGuest()) return;
   H.conns[i] = null; H.players[i].connected = false;
   announce(`${H.players[i].name} se ha desconectado.`);
   if (H.phase === 'play' && H.players.every((p, j) => !p.connected || H.submitted[j])) hostFinish();
@@ -164,12 +190,12 @@ function hostDrop(conn){
 function hostMsg(i, d){
   switch (d.t){
     case 'vowels': return hostVowels(i, +d.n);
-    case 'answer': return hostAnswer(i, d);
-    case 'start': if (i === 0) hostStart(); return;
-    case 'force': if (i === 0) hostFinish(); return;
-    case 'override': if (i === 0) hostOverride(+d.i); return;
-    case 'next': if (i === 0) hostNext(); return;
-    case 'restart': if (i === 0) hostRestart(); return;
+    case 'answer': if (i >= 0) hostAnswer(i, d); return;
+    case 'start': if (isAdmin(i)) hostStart(); return;
+    case 'force': if (isAdmin(i)) hostFinish(); return;
+    case 'override': if (isAdmin(i)) hostOverride(+d.i); return;
+    case 'next': if (isAdmin(i)) hostNext(); return;
+    case 'restart': if (isAdmin(i)) hostRestart(); return;
   }
 }
 function hostStart(){
@@ -207,7 +233,7 @@ function hostDeal(){
 }
 function hostVowels(i, n){
   if (H.phase !== 'choose' || !(n >= 3 && n <= 6)) return;
-  if (!(i === H.chooser || (i === 0 && !H.players[H.chooser].connected))) return;
+  if (!(i === H.chooser || (isAdmin(i) && !H.players[H.chooser].connected))) return;
   H.turns++;
   H.round.vowels = n; H.round.letters = drawLetters(n);
   hostDeal(); hostBroadcast();
@@ -301,7 +327,7 @@ function rejectText(why){
 }
 async function onlineJoin(code, name){
   onlineTeardown();
-  S.online = true; O.role = 'guest'; O.name = name; O.code = code; O.leaving = false;
+  S.online = true; O.role = 'guest'; O.name = name; O.code = code; O.leaving = false; O.pantalla = false; O.mute = false; setPantallaUI(false);
   $('#quit-btn').hidden = false;
   onlineConnecting(`Conectando con la sala ${code}…`);
   try{ await loadPeerLib(); }
@@ -339,8 +365,9 @@ function waitingNames(P){
 function onlineRender(P){
   const prevScreen = O.screen, first = !O.P;
   O.P = P;
-  O.me = O.role === 'host' ? 0 : P.players.findIndex(p => p.name.toLowerCase() === O.name.toLowerCase());
-  if (O.me < 0){ onlineFail('Ya no estás en esta sala.', false, 'No se ha podido entrar'); return; }
+  O.me = O.role === 'host' ? (P.pantalla ? -1 : 0) : P.players.findIndex(p => p.name.toLowerCase() === O.name.toLowerCase());
+  if (O.me < 0 && !(O.role === 'host' && P.pantalla)){ onlineFail('Ya no estás en esta sala.', false, 'No se ha podido entrar'); return; }
+  O.mute = O.role === 'guest' && !!P.pantalla; // si hay pantalla, el sonido sale de ella
   S.online = true;
   S.game = { players:P.players.map((p, i) => ({ name:p.name, score:p.score, off:!p.connected, me:i === O.me })), plan:P.plan, idx:P.idx, history:P.history, letterTurns:0 };
   if (first && O.role === 'guest') requestWake();
@@ -359,36 +386,47 @@ function onlineRender(P){
   }
 }
 function onlineLobby(P, focus){
-  const host = O.role === 'host', link = roomLink(P.code), set = P.settings;
+  const host = O.role === 'host', ctl = canCtl(), screen = host && P.pantalla, link = roomLink(P.code), set = P.settings;
   const kindTxt = { alternas:'letras y cifras', letras:'solo letras', cifras:'solo cifras' }[set.kind];
   const timeTxt = { oficial:'con el tiempo del concurso', doble:'con el doble de tiempo', libre:'sin límite de tiempo' }[set.time];
   const online = P.players.filter(p => p.connected).length;
-  app.innerHTML = `<section aria-labelledby="h-lobby">
+  const where = location.host ? (location.host + location.pathname).replace(/index\.html$/, '') : link;
+  const lead = screen ? `Con el móvil, escanea el código QR, o abre <strong>${esc(where)}</strong>, elige «Varios móviles», «Unirme a una sala» y escribe el código.`
+    : host ? 'Tus amigos tienen que abrir el juego, elegir «Varios móviles», «Unirme a una sala» y escribir este código. También puedes mandarles el enlace.'
+    : P.pantalla ? 'Ya estás dentro. Mira la pantalla: ahí saldrán las letras y los números. Tú responderás desde este móvil.' : 'Ya estás dentro. Espera a que el anfitrión empiece la partida.';
+  const badge = i => i !== 0 ? '' : P.pantalla ? '<span class="badge neutral">Tiene el mando</span>' : '<span class="badge neutral">Anfitrión</span>';
+  const startMsg = online < 2 ? 'Hacen falta al menos 2 jugadores para empezar.' : '';
+  app.innerHTML = `<section aria-labelledby="h-lobby" class="${screen ? 'lobby-screen' : ''}">
+    <div class="lobby-main">
     <h2 id="h-lobby">Sala ${esc(P.code)}</h2>
-    <p class="lead">${host ? 'Tus amigos tienen que abrir el juego, elegir «Varios móviles», «Unirme a una sala» y escribir este código. También puedes mandarles el enlace.' : 'Ya estás dentro. Espera a que el anfitrión empiece la partida.'}</p>
+    <p class="lead">${lead}</p>
     <div class="room-code" role="img" aria-label="Código de la sala: ${P.code.split('').join(' ')}">${P.code.split('').map(c => `<span class="tile">${c}</span>`).join('')}</div>
-    ${host ? `<div class="row"><button type="button" class="btn" id="o-copy">Copiar enlace</button>${navigator.share ? '<button type="button" class="btn" id="o-share">Compartir</button>' : ''}</div>` : ''}
+    ${host && !screen ? `<div class="row"><button type="button" class="btn" id="o-copy">Copiar enlace</button>${navigator.share ? '<button type="button" class="btn" id="o-share">Compartir</button>' : ''}</div>` : ''}
     <h3>Jugadores conectados: ${online}</h3>
-    <ul class="plist">${P.players.map((p, i) => `<li><span class="nm">${esc(p.name)}${i === O.me ? ' (tú)' : ''}</span>${i === 0 ? '<span class="badge neutral">Anfitrión</span>' : ''}${p.connected ? '' : '<span class="badge bad">Sin conexión</span>'}</li>`).join('')}</ul>
+    ${P.players.length ? `<ul class="plist">${P.players.map((p, i) => `<li><span class="nm">${esc(p.name)}${i === O.me ? ' (tú)' : ''}</span>${badge(i)}${p.connected ? '' : '<span class="badge bad">Sin conexión</span>'}</li>`).join('')}</ul>` : '<p class="hint">Todavía no ha entrado nadie.</p>'}
     <p class="hint">Partida de ${set.rounds} pruebas: ${kindTxt}, ${timeTxt}.</p>
-    ${host ? `<p class="msg" id="o-startmsg" role="status">${online < 2 ? 'Hacen falta al menos 2 jugadores para empezar.' : ''}</p><button type="button" class="btn primary" id="o-start" ${online < 2 ? 'aria-disabled="true"' : ''}>Empezar partida</button>` : ''}
+    ${ctl ? `<p class="msg" id="o-startmsg" role="status">${startMsg}</p><button type="button" class="btn primary" id="o-start" ${online < 2 ? 'aria-disabled="true"' : ''}>Empezar partida</button>` : ''}
+    </div>
+    ${screen ? `<div class="lobby-qr">${qrSvg(link)}</div>` : ''}
   </section>`;
-  if (host){
+  if (host && !screen){
     $('#o-copy').addEventListener('click', async () => {
       try{ await navigator.clipboard.writeText(link); $('#o-copy').textContent = 'Enlace copiado'; announce('Enlace copiado.'); }
       catch(_){ window.prompt('Copia este enlace:', link); }
     });
     const sh = $('#o-share'); if (sh) sh.addEventListener('click', () => { navigator.share({ title:'Cifras y Letras', text:`Sala ${P.code}`, url:link }).catch(() => {}); });
+  }
+  if (ctl){
     $('#o-start').addEventListener('click', () => {
       if (O.P.players.filter(p => p.connected).length < 2){ $('#o-startmsg').textContent = 'Hacen falta al menos 2 jugadores para empezar.'; return; }
       onlineSend({ t:'start' });
     });
   }
-  if (focus) focusHeading();
+  if (focus) focusPrimary('#o-start', focusHeading);
 }
 function onlineChoose(P){
-  const me = O.me, ch = P.chooser, host = O.role === 'host', cname = P.players[ch].name;
-  const mine = ch === me || (host && !P.players[ch].connected);
+  const me = O.me, ch = P.chooser, cname = P.players[ch].name;
+  const mine = ch === me || (canCtl() && !P.players[ch].connected);
   app.innerHTML = `<section class="round-l" aria-labelledby="h-round">
     ${roundHead()}
     <p class="turn-msg">${mine ? (ch === me ? '¿Cuántas vocales queréis?' : `<strong>${esc(cname)}</strong> no está conectado. Elige tú las vocales.`) : `Elige <strong>${esc(cname)}</strong>: ¿cuántas vocales?`}</p>
@@ -411,6 +449,7 @@ function onlinePlay(P){
 const lockTiles = () => $$('#tiles .tile').forEach(t => { t.disabled = true; });
 function clockLeft(pr){ return pr.secs ? Math.min(pr.secs * 1000, pr.deadlineAt - Date.now()) : undefined; }
 function onlineLetrasPlay(pr){
+  if (O.me < 0) return onlineScreenPlay(pr);
   if (pr.submitted){ lockTiles(); onlineWaiting(); return; }
   const scr = O.screen;
   letrasInput({ secs:pr.secs, left:clockLeft(pr), noPause:true, onDone: w => {
@@ -419,6 +458,7 @@ function onlineLetrasPlay(pr){
   } });
 }
 function onlineCifrasPlay(pr){
+  if (O.me < 0) return onlineScreenPlay(pr);
   if (pr.submitted){ $('#tiles').hidden = false; onlineWaiting(); return; }
   const scr = O.screen;
   cifrasInput({ secs:pr.secs, left:clockLeft(pr), noPause:true, onDone: a => {
@@ -427,8 +467,18 @@ function onlineCifrasPlay(pr){
     if (O.screen === scr) onlineWaiting();
   } });
 }
+// La pantalla grande no responde: enseña el reloj y quién ha entregado ya.
+function onlineScreenPlay(pr){
+  const ctl = canCtl();
+  $('#play').innerHTML = `<div class="panel" role="status"><h3 id="o-wait-h" tabindex="-1">Los jugadores están respondiendo</h3>
+    <p id="o-wait-list">${esc(waitingNames(O.P))}</p>
+    ${ctl ? '<button type="button" class="btn" id="o-force">Cerrar la prueba ya</button>' : ''}</div>`;
+  if (ctl) $('#o-force').addEventListener('click', () => onlineSend({ t:'force' }));
+  S.clock = new Clock($('#clock-host'), pr.secs, () => {}, { left:clockLeft(pr), noPause:true });
+  S.clock.start();
+}
 function onlineWaiting(){
-  const P = O.P, host = O.role === 'host';
+  const P = O.P, host = canCtl();
   const ch = $('#clock-host'); if (ch) ch.innerHTML = '';
   $('#play').innerHTML = `<div class="panel" role="status"><h3 id="o-wait-h" tabindex="-1">Respuesta enviada</h3>
     <p id="o-wait-list">${esc(waitingNames(P))}</p>
@@ -443,11 +493,11 @@ function staticBoard(R){
     <div class="target"><span>Objetivo</span><div class="tile">${R.target}</div></div>`;
 }
 function onlineResults(P){
-  const scr = O.screen, host = O.role === 'host', R = P.round, res = P.results;
+  const scr = O.screen, host = canCtl(), R = P.round, res = P.results;
   const last = P.idx >= P.plan.length - 1;
   const footer = host
     ? `<div class="row next-row"><button type="button" class="btn primary" id="o-next">${last ? 'Ver la clasificación final' : 'Siguiente prueba'}</button></div>`
-    : `<p class="hint" style="margin-top:18px">Esperando a que ${esc(P.players[0].name)} pase ${last ? 'a la clasificación final' : 'a la siguiente prueba'}.</p>`;
+    : `<p class="hint" style="margin-top:18px">Esperando a que ${esc(P.players[0].name)}${P.pantalla ? ' o la pantalla' : ''} pase${P.pantalla ? 'n' : ''} ${last ? 'a la clasificación final' : 'a la siguiente prueba'}.</p>`;
   const draw = () => {
     if (O.screen !== scr) return;
     const inner = R.type === 'L'
@@ -459,7 +509,7 @@ function onlineResults(P){
     if (host) $('#o-next').addEventListener('click', () => onlineSend({ t:'next' }));
     if (O.focusSel){ const el = $(O.focusSel); O.focusSel = null; if (el) el.focus(); }
     else {
-      $('#res-h').focus();
+      focusPrimary('#o-next', () => $('#res-h').focus());
       const sum = resumenEquipos(res.pts);
       announce(R.type === 'L' ? `${sum} La palabra más larga posible tenía ${res.best.len} letras.` : `${sum} ${res.sol.diff === 0 ? 'La cifra exacta era posible.' : `Lo más cerca posible era ${res.sol.value}.`}`);
     }
@@ -467,11 +517,11 @@ function onlineResults(P){
   if (R.type === 'L' && !Dict.variants) loadDict().then(draw).catch(draw); else draw();
 }
 function onlineFinal(P){
-  const host = O.role === 'host';
+  const host = canCtl();
   const { html, headline } = finalHtml(S.game, host
     ? '<div class="row"><button type="button" class="btn primary" id="o-again">Otra partida en esta sala</button></div>'
-    : `<p class="hint">Esperando a que ${esc(P.players[0].name)} abra otra partida. Puedes salir cuando quieras.</p>`);
+    : `<p class="hint">Esperando a que ${esc(P.players[0].name)}${P.pantalla ? ' o la pantalla' : ''} abra${P.pantalla ? 'n' : ''} otra partida. Puedes salir cuando quieras.</p>`);
   app.innerHTML = html;
   if (host) $('#o-again').addEventListener('click', () => onlineSend({ t:'restart' }));
-  focusHeading(); announce(headline);
+  focusPrimary('#o-again', focusHeading); announce(headline);
 }

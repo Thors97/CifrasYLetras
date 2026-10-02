@@ -25,7 +25,7 @@ async function letrasDeal(vowels, preset){
   const letters = preset ? preset.letters : drawLetters(vowels);
   Object.assign(S.round, { letters, vowels });
   const token = S.round;
-  const solo = isSolo() || S.online;
+  const solo = isSolo() || (S.online && O.me >= 0); // la pantalla grande no responde: fichas sin botón
   app.innerHTML = `<section class="round-l" aria-labelledby="h-round">
     ${roundHead()}
     <div class="board">

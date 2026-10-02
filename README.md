@@ -8,6 +8,14 @@ Abre `index.html` en el navegador (con doble clic vale) o publica la carpeta en 
 
 El modo "Varios móviles" necesita conexión a internet y que el juego esté publicado en una web.
 
+## Jugar con una pantalla grande
+
+Una tele, un portátil o un proyector puede enseñar el tablero mientras cada jugador responde con su móvil:
+
+1. En el dispositivo grande, elige «Varios móviles» → «Crear una sala en una pantalla grande». También puedes abrir directamente `…/#pantalla`.
+2. Los jugadores escanean el código QR (o escriben el código de 4 letras) desde su móvil.
+3. La pantalla y el primer jugador que entró manejan «Empezar» y «Siguiente».
+
 ## Estructura
 
 | Ruta | Contenido |
@@ -15,6 +23,7 @@ El modo "Varios móviles" necesita conexión a internet y que el juego esté pub
 | `index.html` | Estructura de la página y orden de carga de los scripts. |
 | `css/estilos.css` | Estilos, con tema claro y oscuro. |
 | `js/` | Código del juego, un archivo por parte. Son scripts clásicos (no módulos), que comparten el ámbito global y se cargan en el orden de `index.html`. |
+| `js/vendor/qrcode.js` | Generador de códigos QR ([qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator), licencia MIT). |
 | `diccionario/palabras.txt` | Lista base de palabras: una por línea, en minúsculas y con tildes. |
 | `diccionario/añadidas.txt` | Palabras que añadimos a la lista base. |
 | `diccionario/excluidas.txt` | Palabras que quitamos de la lista base. |

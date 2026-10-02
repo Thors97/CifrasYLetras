@@ -15,7 +15,7 @@
 <a class="skip" href="#app">Ir al juego</a>
 <header class="top">
   <h1 class="brand"><span class="chip c">Cifras</span><span class="y">y</span><span class="chip l">Letras</span></h1>
-  <div class="top-actions"><button type="button" class="btn small icon" id="theme-btn" aria-label="Tema: Automático. Cambiar tema"></button><button type="button" class="btn small" id="quit-btn" hidden>Salir</button></div>
+  <div class="top-actions"><button type="button" class="btn small" id="fs-btn" hidden>Pantalla completa</button><button type="button" class="btn small icon" id="theme-btn" aria-label="Tema: Automático. Cambiar tema"></button><button type="button" class="btn small" id="quit-btn" hidden>Salir</button></div>
 </header>
 <ul class="scores" id="scores" aria-label="Marcador" hidden></ul>
 <main id="app" tabindex="-1"></main>
@@ -34,6 +34,7 @@
 </dialog>
 
 <script src="diccionario/datos.js"></script>
+<script src="js/vendor/qrcode.js"></script>
 <script src="js/utilidades.js"></script>
 <script src="js/diccionario.js"></script>
 <script src="js/resolvedor.js"></script>

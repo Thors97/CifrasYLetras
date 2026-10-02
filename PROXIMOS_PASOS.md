@@ -66,16 +66,19 @@ Es requisito para probar el modo online y la pantalla compartida con dispositivo
 - [ ] Probar el modo "Por equipos" duplicando la pantalla en la tele.
 - [ ] Probar que el juego abre en el navegador Silk del Fire TV.
 
-## Fase 3: pantalla compartida (prioridad media-alta)
+## Fase 3: pantalla compartida (hecha)
 
-- [ ] **Vista "pantalla"** pensada para verse desde lejos: fichas y reloj en grande, código de sala y QR, lista de jugadores, quién ha entregado, revelación de respuestas y marcador.
-- [ ] **Paso B:** la pantalla entra como espectador en una sala existente.
-- [ ] **Paso A:** refactorizar el anfitrión para que pueda no ser jugador, y que la pantalla cree la sala.
-- [ ] **Código QR** con el enlace `#sala=XXXX`.
-- [ ] **Controles delegados:** "Siguiente", "Cerrar la prueba ya" y "Dar por válida" desde el móvil del primer jugador.
-- [ ] **Navegación con mando** (flechas y OK) para Fire TV.
-- [ ] **Sonido y animaciones solo en la pantalla**, silenciados en los móviles.
-- [ ] **Pantalla completa** con un botón.
+- [x] **Vista "pantalla"** para verse desde lejos: fichas y reloj grandes, código de sala con QR, lista de jugadores, quién falta por entregar, revelación de respuestas y marcador.
+- [x] **La pantalla es el anfitrión** (opción A): crea la sala y lleva la partida sin jugar; todos los jugadores son invitados. Se elige en «Varios móviles → Crear una sala en una pantalla grande». También vale abrir la dirección terminada en `#pantalla`.
+- [x] **Código QR** con el enlace `#sala=XXXX`, generado con `qrcode-generator` (MIT) incluido en `js/vendor/`, así que funciona sin CDN.
+- [x] **Controles delegados:** "Empezar", "Siguiente", "Cerrar la prueba ya", "Dar por válida" y "Otra partida" los tienen la pantalla y el primer jugador que entró.
+- [x] **Sin sonido en los móviles** cuando hay pantalla: suena solo ella.
+- [x] **Pantalla completa** con un botón.
+- [x] **Foco para el mando** (flechas y OK): en la pantalla el foco queda en el botón principal de cada vista.
+- [x] **Probado con tres pestañas** (pantalla y dos móviles) y un PeerJS simulado: sala, QR, vocales, letras, cifras, cierre de prueba desde la pantalla, "Siguiente" desde la pantalla y desde un móvil, reconexión de un jugador a mitad de partida, otra partida y salir.
+- [ ] **Probar en dispositivos reales:** tele o Fire TV con Silk, y móviles por wifi y por datos. No se ha podido probar con el servidor real de PeerJS.
+- [ ] **Navegación con mando en Fire TV:** comprobar que las flechas llegan a todos los botones.
+- [ ] **Modo espectador (opción B)**, para ver una sala ya creada desde un móvil. No se ha hecho; la opción A cubre el caso de uso.
 
 ## Fase 4: comodidad y continuidad (prioridad media)
 
