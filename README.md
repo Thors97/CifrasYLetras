@@ -16,6 +16,7 @@ Juego de **Cifras y Letras** en castellano, con las normas del concurso de La 2:
 - **Diccionario propio** de 441.757 palabras de 5 a 10 letras, con plurales, femeninos y formas verbales. Funciona sin conexión.
 - **Solucionador de cifras:** al acabar cada prueba enseña la solución con menos operaciones, o la aproximación más cercana si la cifra exacta no se podía conseguir.
 - **Palabras más largas:** al acabar cada prueba de letras enseña las mejores palabras posibles, con enlace a su definición en el DLE.
+- **Ayuda «Cómo jugar»:** botón `?` en la cabecera (o la tecla `?`) con tres apartados —letras, cifras y en grupo—, un ejemplo de cada prueba y un aviso la primera vez que se entra. Si hay un reloj en marcha en un solo dispositivo, se para mientras se lee.
 - **Tema** automático, claro u oscuro.
 - **Accesible:** se maneja con teclado, avisa a los lectores de pantalla de lo que pasa y respeta la opción de reducir animaciones.
 
@@ -101,7 +102,7 @@ Para publicarlo en GitHub Pages: *Settings → Pages → Build and deployment �
 | `diccionario/datos.js` | Diccionario comprimido que carga el juego. **Se genera; no se edita a mano.** |
 | `scripts/generar-diccionario.js` | Genera `datos.js` a partir de los `.txt`. |
 
-Los archivos de `js/`, en el orden en que se cargan: `utilidades`, `diccionario`, `resolvedor` (cifras), `sorteos`, `estado`, `reloj`, `inicio`, `letras`, `cifras`, `final`, `online` y `arranque`. `tema.js` se carga antes, en la cabecera, para aplicar el tema sin parpadeo.
+Los archivos de `js/`, en el orden en que se cargan: `utilidades`, `diccionario`, `resolvedor` (cifras), `sorteos`, `estado`, `reloj`, `inicio`, `letras`, `cifras`, `final`, `ayuda`, `online` y `arranque`. `tema.js` se carga antes, en la cabecera, para aplicar el tema sin parpadeo.
 
 ## Cambiar el diccionario
 

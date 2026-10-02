@@ -7,6 +7,8 @@ function renderSetup(){
   <section aria-labelledby="h-setup">
     <h2 id="h-setup">Nueva partida</h2>
     <p class="lead">La palabra más larga y la cifra exacta, con las normas actuales del concurso de La 2.</p>
+    ${restore('cyl-ayuda') ? '' : `<div class="panel intro" id="intro"><p><strong>¿Primera vez?</strong> En un minuto verás cómo se juega, con un ejemplo de cada prueba.</p>
+      <div class="row"><button type="button" class="btn primary small" id="intro-go">Cómo jugar</button><button type="button" class="btn small" id="intro-no">Ahora no</button></div></div>`}
     <form id="f-setup" novalidate>
       <fieldset class="modes-fs">
         <legend>¿Quién juega?</legend>
@@ -164,6 +166,11 @@ function renderSetup(){
     unlockAudio();
     newGame();
   });
+  const introGo = $('#intro-go'), introNo = $('#intro-no');
+  if (introGo){
+    introGo.addEventListener('click', () => abrirAyuda('letras'));
+    introNo.addEventListener('click', () => { store('cyl-ayuda', true); $('#intro').remove(); focusHeading(); });
+  }
   focusHeading();
 }
 

@@ -273,3 +273,32 @@ body.pantalla .room-code .tile{width:clamp(80px, 8vw, 150px); font-size:clamp(3r
 .qr .qr-bg{fill:var(--qr-bg)}
 .qr .qr-fg{fill:var(--qr-fg)}
 @media (max-width:760px){ .lobby-screen{grid-template-columns:1fr} .lobby-qr{max-width:320px} }
+
+/* Cómo jugar */
+.btn.icon{font-weight:800; font-size:1.1rem}
+dialog#dlg-help{padding:0; max-width:min(94vw, 680px); width:100%; max-height:88vh}
+dialog#dlg-help[open]{display:flex; flex-direction:column}
+.help-head{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 22px 10px}
+.help-head h2{margin:0}
+.help-body{overflow:auto; padding:0 22px 22px; flex:1}
+#help-panel{outline-offset:4px}
+.tabs{display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 6px}
+.tab{appearance:none; min-height:44px; padding:6px 13px; font-size:.97rem; background:var(--surface); border:2px solid var(--line); border-radius:999px; cursor:pointer; font-weight:700}
+.tab[aria-selected="true"]{background:var(--studio); color:var(--studio-ink); border-color:var(--studio)}
+#help-panel h3{margin:18px 0 6px; font-size:1.1rem}
+.help-steps{margin:0 0 10px; padding-left:22px}
+.help-steps li, .help-list li{margin-bottom:6px; max-width:62ch}
+.help-list{margin:0 0 10px; padding-left:20px}
+.help-example{background:var(--surface-2); border:1px solid var(--line); border-radius:14px; padding:12px 16px 4px; margin:12px 0}
+.help-example .sol-steps{margin:6px 0 10px; font-size:1.05rem}
+.help-cap{margin:0 0 6px; font-size:.85rem; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.06em}
+.demo-row{list-style:none; margin:6px 0 10px; padding:0; display:flex; flex-wrap:wrap; gap:6px}
+.demo-row .tile{width:42px; aspect-ratio:1/1.08; font-size:1.3rem; padding:0 0 4px; box-shadow:inset 0 -5px 0 var(--letras)}
+.demo-target .demo-row .tile{width:auto; min-width:44px; height:46px; aspect-ratio:auto; padding:0 10px 4px; box-shadow:inset 0 -5px 0 var(--cifras)}
+.demo-goal{display:flex; align-items:center; gap:10px; margin:0 0 10px; font-weight:700; color:var(--muted)}
+.demo-goal .tile{--acc:var(--studio); width:auto; aspect-ratio:auto; padding:6px 14px 10px; font-size:1.7rem; background:var(--cifras); color:var(--cifras-ink); border-color:transparent; box-shadow:inset 0 -6px 0 rgba(0,0,0,.2)}
+kbd{font-family:var(--font-tile); font-weight:800; font-size:.9em; padding:1px 7px; border:1px solid var(--line-strong); border-bottom-width:3px; border-radius:6px; background:var(--surface)}
+.panel.intro{display:flex; align-items:center; justify-content:space-between; gap:14px 20px; flex-wrap:wrap}
+.panel.intro p{margin:0}
+body.pantalla #help-btn{display:none}
+@media (max-width:480px){ .demo-target .demo-row .tile{min-width:38px; padding:0 6px 4px; font-size:1.15rem} .demo-target .demo-row{gap:5px} }
