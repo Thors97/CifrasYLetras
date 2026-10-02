@@ -17,7 +17,7 @@ Juego de **Cifras y Letras** en castellano, con las normas del concurso de La 2:
 - **Solucionador de cifras:** al acabar cada prueba enseña la solución con menos operaciones, o la aproximación más cercana si la cifra exacta no se podía conseguir.
 - **Palabras más largas:** al acabar cada prueba de letras enseña las mejores palabras posibles, con enlace a su definición en el DLE.
 - **Ayuda «Cómo jugar»:** botón `?` en la cabecera (o la tecla `?`) con tres apartados —letras, cifras y en grupo—, un ejemplo de cada prueba y un aviso la primera vez que se entra. Si hay un reloj en marcha en un solo dispositivo, se para mientras se lee.
-- **Tema** automático, claro u oscuro.
+- **Siete temas** a elegir con el botón de la paleta: Automático (sigue el modo claro u oscuro del dispositivo), Claro, Oscuro, Bosque, Atardecer, Violeta y Alto contraste. Todos cumplen los contrastes mínimos de accesibilidad (WCAG AA) y el elegido se recuerda.
 - **Accesible:** se maneja con teclado, avisa a los lectores de pantalla de lo que pasa y respeta la opción de reducir animaciones.
 
 ## Cómo se juega
@@ -93,7 +93,7 @@ Para publicarlo en GitHub Pages: *Settings → Pages → Build and deployment �
 | Ruta | Contenido |
 |---|---|
 | `index.html` | Estructura de la página y orden de carga de los scripts. |
-| `css/estilos.css` | Estilos, con tema claro y oscuro y la vista de pantalla grande. |
+| `css/estilos.css` | Estilos, con las paletas de los siete temas y la vista de pantalla grande. |
 | `js/` | Código del juego, un archivo por parte. Son scripts clásicos (no módulos), que comparten el ámbito global y se cargan en el orden de `index.html`. |
 | `js/vendor/qrcode.js` | Generador de códigos QR ([qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator), licencia MIT). |
 | `diccionario/palabras.txt` | Lista base de palabras: una por línea, en minúsculas y con tildes. |
@@ -102,7 +102,7 @@ Para publicarlo en GitHub Pages: *Settings → Pages → Build and deployment �
 | `diccionario/datos.js` | Diccionario comprimido que carga el juego. **Se genera; no se edita a mano.** |
 | `scripts/generar-diccionario.js` | Genera `datos.js` a partir de los `.txt`. |
 
-Los archivos de `js/`, en el orden en que se cargan: `utilidades`, `diccionario`, `resolvedor` (cifras), `sorteos`, `estado`, `reloj`, `inicio`, `letras`, `cifras`, `final`, `ayuda`, `online` y `arranque`. `tema.js` se carga antes, en la cabecera, para aplicar el tema sin parpadeo.
+Los archivos de `js/`, en el orden en que se cargan: `utilidades`, `diccionario`, `resolvedor` (cifras), `sorteos`, `estado`, `reloj`, `inicio`, `letras`, `cifras`, `final`, `ayuda`, `online` y `arranque`. `tema.js` se carga antes, en la cabecera, para aplicar el tema sin parpadeo. Para añadir un tema nuevo: define sus colores en `css/estilos.css` con `:root[data-theme="nombre"]` (copia uno de los existentes) y añádelo a la lista `TEMAS` de `js/tema.js`.
 
 ## Cambiar el diccionario
 

@@ -83,6 +83,7 @@ Es requisito para probar el modo online y la pantalla compartida con dispositivo
 ## Fase 4: comodidad y continuidad (prioridad media)
 
 - [x] **Pantalla «Cómo jugar»:** botón `?` en la cabecera (y tecla `?`) con apartados de letras, cifras y en grupo, un ejemplo comprobado con el motor del juego en cada prueba, y un aviso la primera vez que se entra. Para el reloj mientras se lee, salvo en una sala online.
+- [x] **Más temas:** selector con Automático, Claro, Oscuro, Bosque, Atardecer, Violeta y Alto contraste. Se comprobó el contraste de todos con un script, y eso corrigió dos fallos del tema oscuro anterior (borde de turno y botón «Salir»).
 - [ ] **Guardar la partida en curso** (solo y por equipos) y ofrecer continuarla tras recargar la página.
 - [ ] **Estadísticas en solitario:** partidas jugadas, mejor puntuación, palabra más larga y cifras exactas.
 - [ ] **Resolvedor de cifras más robusto:** no bloquear la página si el worker falla, y mostrar un mensaje claro si se agota el tiempo.
