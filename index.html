@@ -15,12 +15,23 @@
 <a class="skip" href="#app">Ir al juego</a>
 <header class="top">
   <h1 class="brand"><span class="chip c">Cifras</span><span class="y">y</span><span class="chip l">Letras</span></h1>
-  <div class="top-actions"><button type="button" class="btn small" id="fs-btn" hidden>Pantalla completa</button><button type="button" class="btn small icon" id="theme-btn" aria-label="Tema: Automático. Cambiar tema"></button><button type="button" class="btn small" id="quit-btn" hidden>Salir</button></div>
+  <div class="top-actions"><button type="button" class="btn small" id="fs-btn" hidden>Pantalla completa</button><button type="button" class="btn small icon" id="help-btn" aria-label="Cómo jugar" title="Cómo jugar (?)">?</button><button type="button" class="btn small icon" id="theme-btn" aria-label="Tema: Automático. Cambiar tema"></button><button type="button" class="btn small" id="quit-btn" hidden>Salir</button></div>
 </header>
 <ul class="scores" id="scores" aria-label="Marcador" hidden></ul>
 <main id="app" tabindex="-1"></main>
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div id="alert" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+<dialog id="dlg-help" aria-labelledby="help-h">
+  <div class="help-head">
+    <h2 id="help-h">Cómo jugar</h2>
+    <button type="button" class="btn small" id="help-close">Cerrar</button>
+  </div>
+  <div class="help-body">
+    <div class="tabs" id="help-tabs" role="tablist" aria-label="Apartados de la ayuda"></div>
+    <div id="help-panel" role="tabpanel" tabindex="0"></div>
+  </div>
+</dialog>
 
 <dialog id="dlg-quit" aria-labelledby="dlg-quit-h">
   <form method="dialog">
@@ -45,6 +56,7 @@
 <script src="js/letras.js"></script>
 <script src="js/cifras.js"></script>
 <script src="js/final.js"></script>
+<script src="js/ayuda.js"></script>
 <script src="js/online.js"></script>
 <script src="js/arranque.js"></script>
 </body>
