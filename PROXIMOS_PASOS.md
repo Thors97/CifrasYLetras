@@ -45,22 +45,22 @@ Es la base para todo lo demás: hoy cualquier cambio toca un archivo de 425 KB c
 
 Esta fase no cambia nada de lo que ve el jugador.
 
-## Fase 1: mejoras rápidas de jugabilidad (prioridad alta)
+## Fase 1: mejoras rápidas de jugabilidad (hecha)
 
-Cambios pequeños, sin riesgo y muy visibles.
-
-- [ ] **Cifras: ordenar solo los operandos de restas y divisiones.** Hoy da error si se pulsa primero el número pequeño.
-- [ ] **Cifras: elegir cuántos números grandes salen** (25, 50, 75, 100): de 0 a 4, o al azar, igual que se eligen las vocales en letras.
-- [ ] **Cifras: atajos de teclado** para números, `+ − × ÷`, Intro, Retroceso y deshacer.
-- [ ] **Botón de tema** claro, oscuro o automático. El CSS ya lo admite con `data-theme`.
-- [ ] **Validar los ajustes guardados** al cargarlos, para que un valor corrupto en `localStorage` no rompa la partida.
+- [x] **Cifras: restas y divisiones en cualquier orden.** Se pone primero el número mayor automáticamente.
+- [x] **Cifras: elegir cuántos números grandes salen** (25, 50, 75, 100): de 0 a 4, o al azar. Por equipos elige un equipo cada vez, empezando por uno distinto al de las letras. En "Varios móviles" siguen saliendo al azar.
+- [x] **Cifras: encadenar operaciones** como en una calculadora: tras un resultado, pulsar una operación sigue con ese resultado.
+- [x] **Cifras: atajos de teclado.** Se escriben los números y `+ − × ÷` (o `* /`); Retroceso deshace, Esc cancela la selección e Intro entrega. Solo se muestra la ayuda en dispositivos con ratón.
+- [x] **Botón de tema** automático, claro u oscuro, que se recuerda entre visitas.
+- [x] **Validar los ajustes guardados** al cargarlos: cada valor no válido se sustituye por el de por defecto.
+- [ ] **Online: un nombre repetido puede quitarle el sitio a otro jugador** (ANALISIS.md, 1.3). Aplazado porque el modo online no es prioritario.
 
 ## Fase 2: publicar el juego (prioridad alta)
 
 Es requisito para probar el modo online y la pantalla compartida con dispositivos reales.
 
-- [ ] Publicar en **GitHub Pages**, que es gratis y se activa desde la configuración del repositorio.
-- [ ] Añadir un `README.md` con cómo jugar y el enlace.
+- [ ] Publicar en **GitHub Pages**: en el repositorio, *Settings → Pages → Build and deployment*, elegir *Deploy from a branch*, la rama y la carpeta `/ (root)`. La web queda en `https://<usuario>.github.io/<repositorio>/`.
+- [ ] Añadir el enlace al `README.md`.
 - [ ] Probar el modo "Varios móviles" con móviles reales, en la misma wifi y con datos móviles.
 - [ ] Probar el modo "Por equipos" duplicando la pantalla en la tele.
 - [ ] Probar que el juego abre en el navegador Silk del Fire TV.

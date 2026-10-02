@@ -42,31 +42,31 @@ Revisión del código de `index.html`: puntos fuertes y partes mejorables, orden
 
 ---
 
-## Fase 1: prioridad alta
+## Fase 1: prioridad alta — hecha salvo 1.3
 
 Problemas de uso que se notan en cada partida, o riesgos con arreglo sencillo.
 
-### 1.1 Las restas y divisiones exigen un orden concreto
+### 1.1 Las restas y divisiones exigen un orden concreto — hecho
 - **Dónde:** constructor de cifras, líneas 1007–1008.
 - **Problema:** si se pulsa primero el número menor, sale un error ("pon primero el número mayor"). En la tele se dice "100 entre 4" o "4 de 100" indistintamente.
 - **Mejora:** ordenar los operandos automáticamente cuando el orden contrario es válido.
 
-### 1.2 No se puede elegir cuántos números grandes salen
+### 1.2 No se puede elegir cuántos números grandes salen — hecho
 - **Dónde:** `drawNumbers`, líneas 435–439.
 - **Problema:** salen 6 números al azar de un grupo de 24. En letras se eligen las vocales, pero en cifras no hay ninguna decisión equivalente.
 - **Mejora:** elegir de 0 a 4 números grandes (25, 50, 75, 100), o al azar.
 
-### 1.3 Un nombre repetido puede quitarle el sitio a otro jugador online
+### 1.3 Un nombre repetido puede quitarle el sitio a otro jugador online — aplazado (el modo online no es prioritario)
 - **Dónde:** `hostHello`, líneas 1313–1320.
 - **Problema:** con la partida empezada, si alguien entra con el nombre de un jugador que sigue conectado, se cierra la conexión del original y el recién llegado ocupa su sitio. Sirve para reconectar, pero también para suplantar a alguien sin querer, por ejemplo dos personas que se llaman igual.
 - **Mejora:** dar a cada jugador un identificador secreto al entrar y guardarlo en `sessionStorage`. Solo quien lo tenga puede recuperar el sitio.
 
-### 1.4 Los ajustes guardados no se validan
+### 1.4 Los ajustes guardados no se validan — hecho
 - **Dónde:** línea 443.
 - **Problema:** se mezclan con los valores por defecto sin comprobar nada. Un valor corrupto en `localStorage`, como `rounds: "abc"`, deja la partida en un estado raro.
 - **Mejora:** comprobar cada campo contra los valores permitidos.
 
-### 1.5 No hay botón de tema
+### 1.5 No hay botón de tema — hecho
 - **Dónde:** el CSS ya define `[data-theme="dark"]` y `[data-theme="light"]` (líneas 24–43), pero ningún código lo usa.
 - **Mejora:** añadir un botón claro, oscuro o automático en la cabecera y guardar la elección.
 

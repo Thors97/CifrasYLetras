@@ -1,17 +1,26 @@
 'use strict';
 /* ================= Cifras ================= */
 function cifrasPrepare(){
-  renderScores(-1);
+  const g = S.game, solo = isSolo();
+  const chooser = (g.numberTurns + 1) % g.players.length; // empieza otro equipo distinto al de las letras
+  renderScores(solo ? -1 : chooser);
   app.innerHTML = `<section class="round-c" aria-labelledby="h-round">
     ${roundHead()}
-    <p class="turn-msg">Saldrán 6 números y un objetivo entre 100 y 999.</p>
-    <button type="button" class="btn primary" id="draw">Sacar las cifras</button>
+    <p class="turn-msg">${solo ? '¿Cuántos números grandes quieres?' : `Elige <strong>${esc(g.players[chooser].name)}</strong>: ¿cuántos números grandes queréis?`}</p>
+    <div class="pick five" role="group" aria-label="Cuántos números grandes">
+      ${[0,1,2,3,4].map(n => `<button type="button" class="btn" data-big="${n}" aria-label="${n} ${plural(n, 'número grande', 'números grandes')}">${n}</button>`).join('')}
+    </div>
+    <div class="row"><button type="button" class="btn small" data-big="azar">Al azar</button></div>
+    <p class="hint" style="margin-top:14px">Saldrán 6 números y un objetivo entre 100 y 999. Los grandes son 25, 50, 75 y 100; el resto, del 1 al 10.</p>
   </section>`;
-  $('#draw').addEventListener('click', () => cifrasDeal());
+  $$('[data-big]', app).forEach(b => b.addEventListener('click', () => {
+    g.numberTurns++;
+    cifrasDeal(null, b.dataset.big === 'azar' ? undefined : +b.dataset.big);
+  }));
   focusHeading();
 }
-async function cifrasDeal(preset){
-  const {nums, target} = preset || drawNumbers();
+async function cifrasDeal(preset, big){
+  const {nums, target} = preset || drawNumbers(big);
   Object.assign(S.round, { nums, target });
   const token = S.round;
   if (!preset) S.round.solution = solveAsync(nums, target);
@@ -44,7 +53,8 @@ function Builder(host, nums, target, opts={}){
   const tiles = nums.map((v, i) => ({id:i, v, used:false, made:false}));
   const steps = []; let sel = null, op = null, nextId = nums.length;
   host.innerHTML = `<div class="builder">
-    <p class="hint" id="b-help">Elige un número, una operación y otro número. El resultado aparece como un número nuevo.</p>
+    <p class="hint" id="b-help">Elige un número, una operación y otro número, en cualquier orden. El resultado aparece como un número nuevo.</p>
+    ${finePointer() ? '<p class="hint">Con el teclado: escribe los números, + − × ÷ (o * /), Retroceso para deshacer, Esc para cancelar e Intro para entregar.</p>' : ''}
     <ul class="tiles numbers b-tiles" aria-label="Números disponibles" aria-describedby="b-help"></ul>
     <div class="ops" role="group" aria-label="Operaciones">
       <button type="button" class="btn" data-op="+" aria-label="Sumar" aria-pressed="false">+</button>
@@ -76,29 +86,41 @@ function Builder(host, nums, target, opts={}){
     if (focusId !== undefined){ const b = $(`[data-id="${focusId}"]`, tUl); if (b && !b.disabled) b.focus(); }
     if (opts.onChange) opts.onChange(a);
   };
-  tUl.addEventListener('click', e => {
-    const b = e.target.closest('[data-id]'); if (!b || b.disabled) return;
-    const id = +b.dataset.id; err.textContent = '';
-    if (sel === null){ sel = id; draw(id); return; }
-    if (sel === id){ sel = null; op = null; draw(id); return; }
-    if (!op){ sel = id; draw(id); return; }
-    const A = byId(sel), B = byId(id); let r = null;
+  const choose = (id, focus) => {
+    err.textContent = '';
+    const f = focus ? id : undefined;
+    if (sel === null){ sel = id; draw(f); return; }
+    if (sel === id){ sel = null; op = null; draw(f); return; }
+    if (!op){ sel = id; draw(f); return; }
+    let A = byId(sel), B = byId(id), r = null;
+    // En restas y divisiones da igual el orden en que se elijan: se pone primero el mayor.
+    if ((op === '−' || op === '÷') && A.v < B.v) [A, B] = [B, A];
     if (op === '+') r = A.v + B.v;
     else if (op === '×') r = A.v * B.v;
-    else if (op === '−'){ if (A.v <= B.v){ err.textContent = 'La resta tiene que dar un número positivo: pon primero el número mayor.'; return; } r = A.v - B.v; }
+    else if (op === '−'){ if (A.v === B.v){ err.textContent = `${A.v} menos ${B.v} da 0, y solo valen resultados positivos.`; return; } r = A.v - B.v; }
     else { if (A.v % B.v !== 0){ err.textContent = `La división tiene que ser exacta: ${A.v} entre ${B.v} no lo es.`; return; } r = A.v / B.v; }
     A.used = true; B.used = true;
     const nt = {id:nextId++, v:r, used:false, made:true}; tiles.push(nt);
     steps.push({a:A.v, b:B.v, op, r, ids:[A.id, B.id, nt.id]});
     announce(`${A.v} ${OPWORD[op]} ${B.v} igual a ${r}${r === target ? '. ¡Exacto!' : ''}`);
     if (r === target) beep(1200, 0.18, 0.12);
-    sel = null; op = null; draw(nt.id);
-  });
-  $$('[data-op]', host).forEach(b => b.addEventListener('click', () => {
+    sel = null; op = null; draw(focus ? nt.id : undefined);
+  };
+  const setOp = o => {
     err.textContent = '';
-    if (sel === null){ err.textContent = 'Elige primero un número.'; return; }
-    op = op === b.dataset.op ? null : b.dataset.op; draw();
-  }));
+    if (sel === null){
+      // Como en una calculadora: tras una operación, la siguiente sigue con su resultado.
+      const last = steps.length && byId(steps[steps.length - 1].ids[2]);
+      if (last && !last.used) sel = last.id;
+      else { err.textContent = 'Elige primero un número.'; return; }
+    }
+    op = op === o ? null : o; draw();
+  };
+  tUl.addEventListener('click', e => {
+    const b = e.target.closest('[data-id]'); if (!b || b.disabled) return;
+    choose(+b.dataset.id, true);
+  });
+  $$('[data-op]', host).forEach(b => b.addEventListener('click', () => setOp(b.dataset.op)));
   $('[data-act="undo"]', host).addEventListener('click', () => {
     err.textContent = ''; const s = steps.pop(); if (!s) return;
     const [a, b2, n] = s.ids; tiles.splice(tiles.findIndex(t => t.id === n), 1);
@@ -110,8 +132,38 @@ function Builder(host, nums, target, opts={}){
     for (let i = tiles.length - 1; i >= 0; i--) if (tiles[i].made) tiles.splice(i, 1);
     tiles.forEach(t => t.used = false); sel = null; op = null; draw(); announce('Operaciones borradas');
   });
+  // Teclado: se escriben los números (los de varias cifras se esperan un momento), + − × ÷,
+  // Retroceso deshace, Esc cancela la selección e Intro entrega.
+  let disabled = false, buf = '', bufTimer = null, pending = null;
+  const KEY_OPS = {'+':'+', '-':'−', '*':'×', 'x':'×', 'X':'×', '/':'÷', ':':'÷'};
+  const showBuf = () => { expr.textContent = (sel !== null ? `${byId(sel).v} ${op || ''} ` : '') + buf; };
+  const commit = t => { clearTimeout(bufTimer); buf = ''; pending = null; choose(t.id, false); };
+  const flushBuf = () => { if (pending) commit(pending); else if (buf){ buf = ''; showBuf(); } };
+  const typeDigit = d => {
+    clearTimeout(bufTimer); err.textContent = '';
+    buf += d;
+    const av = tiles.filter(t => !t.used && !(op && t.id === sel));
+    const cands = av.filter(t => String(t.v).startsWith(buf));
+    if (!cands.length){ err.textContent = `No queda ningún ${buf} para usar.`; buf = ''; pending = null; showBuf(); return; }
+    pending = av.find(t => String(t.v) === buf) || null;
+    if (pending && !cands.some(t => String(t.v).length > buf.length)) return commit(pending);
+    showBuf();
+    if (pending) bufTimer = setTimeout(() => { if (pending) commit(pending); }, 800);
+  };
+  const onKey = e => {
+    if (!host.isConnected){ document.removeEventListener('keydown', onKey); return; }
+    if (disabled || e.ctrlKey || e.metaKey || e.altKey || $('dialog[open]')) return;
+    if (e.target.closest && e.target.closest('input, textarea, select')) return;
+    const k = e.key;
+    if (/^[0-9]$/.test(k)){ e.preventDefault(); typeDigit(k); }
+    else if (KEY_OPS[k]){ e.preventDefault(); flushBuf(); setOp(KEY_OPS[k]); }
+    else if (k === 'Backspace'){ e.preventDefault(); if (buf){ clearTimeout(bufTimer); buf = buf.slice(0, -1); pending = null; showBuf(); } else $('[data-act="undo"]', host).click(); }
+    else if (k === 'Escape'){ if (buf || sel !== null){ e.preventDefault(); clearTimeout(bufTimer); buf = ''; pending = null; sel = null; op = null; err.textContent = ''; draw(); } }
+    else if (k === 'Enter' && opts.onEnter && !(e.target.closest && e.target.closest('button, a'))){ e.preventDefault(); flushBuf(); opts.onEnter(); }
+  };
+  document.addEventListener('keydown', onKey);
   draw();
-  return { answer, disable(){ $$('button', host).forEach(b => b.disabled = true); } };
+  return { answer, disable(){ disabled = true; clearTimeout(bufTimer); document.removeEventListener('keydown', onKey); $$('button', host).forEach(b => b.disabled = true); } };
 }
 function cifrasSoloPlay(){
   cifrasInput({ secs: timeFor('C'), onDone: a => cifrasResults([a]) });
@@ -121,9 +173,9 @@ function cifrasInput(o){
   $('#play').innerHTML = `<div class="panel" id="b-host"></div>
     <div class="row end"><button type="button" class="btn primary" id="send">Entregar resultado</button></div>`;
   $('#tiles').hidden = true;
-  const bl = Builder($('#b-host'), R.nums, R.target);
   let finished = false;
   const finish = () => { if (finished) return; finished = true; stopClock(); bl.disable(); o.onDone(bl.answer()); };
+  const bl = Builder($('#b-host'), R.nums, R.target, {onEnter:finish});
   $('#send').addEventListener('click', finish);
   S.clock = new Clock($('#clock-host'), o.secs, finish, { left:o.left, noPause:o.noPause });
   S.clock.start();
@@ -155,9 +207,10 @@ function cifrasTeamAnswer(i, acc){
       <button type="button" class="btn primary" id="ok">Confirmar resultado</button>
     </div></div>`;
   $('#tiles').hidden = true;
-  const bl = Builder($('#b-host'), R.nums, R.target, {who:'Vuestro resultado'});
-  $('#ok').addEventListener('click', () => cifrasTeamAnswer(i + 1, acc.concat([bl.answer()])));
-  $('#none').addEventListener('click', () => cifrasTeamAnswer(i + 1, acc.concat([null])));
+  const done = () => { bl.disable(); cifrasTeamAnswer(i + 1, acc.concat([bl.answer()])); };
+  const bl = Builder($('#b-host'), R.nums, R.target, {who:'Vuestro resultado', onEnter:done});
+  $('#ok').addEventListener('click', done);
+  $('#none').addEventListener('click', () => { bl.disable(); cifrasTeamAnswer(i + 1, acc.concat([null])); });
   $('#turn-h').focus();
 }
 function cifrasPointsOf(answers, sol, solo){

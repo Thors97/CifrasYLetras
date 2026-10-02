@@ -7,8 +7,12 @@ function drawLetters(vowels){
   const v = bagOf(VOWEL_BAG).slice(0, vowels), c = bagOf(CONS_BAG).slice(0, 10 - vowels);
   return shuffle(v.concat(c));
 }
-function drawNumbers(){
-  const pool = []; for (let i=1;i<=10;i++) pool.push(i, i); pool.push(25, 50, 75, 100);
-  shuffle(pool);
-  return { nums: pool.slice(0, 6), target: 100 + rnd(900) };
+const BIG_NUMS = [25, 50, 75, 100];
+// big: cuántos números grandes (0 a 4). Sin indicar, salen 6 al azar de todos los números.
+function drawNumbers(big){
+  const small = []; for (let i=1;i<=10;i++) small.push(i, i);
+  let nums;
+  if (big == null) nums = shuffle(small.concat(BIG_NUMS)).slice(0, 6);
+  else nums = shuffle(shuffle(BIG_NUMS.slice()).slice(0, big).concat(shuffle(small).slice(0, 6 - big)));
+  return { nums, target: 100 + rnd(900) };
 }

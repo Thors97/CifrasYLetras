@@ -115,6 +115,7 @@ details.rules li{margin-bottom:6px; max-width:62ch}
 .count{color:var(--muted); font-weight:600}
 .turn-msg{font-size:1.2rem; margin:18px 0 12px}
 .pick{display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; max-width:440px}
+.pick.five{grid-template-columns:repeat(5, 1fr); max-width:520px}
 .pick .btn{min-height:64px; font-size:1.6rem; font-weight:800}
 .pick + .row{margin-top:12px}
 

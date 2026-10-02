@@ -72,7 +72,7 @@ function renderSetup(){
       </ul>
       <h3>Cifras: la cifra exacta</h3>
       <ul>
-        <li>Salen 6 números (del 1 al 10, 25, 50, 75 y 100) y un objetivo entre 100 y 999.</li>
+        <li>Salen 6 números y un objetivo entre 100 y 999. Quien tiene el turno elige cuántos números grandes quiere (25, 50, 75 y 100), de 0 a 4; el resto son pequeños, del 1 al 10. También puede dejarlo al azar.</li>
         <li>Hay 40 segundos para acercarse sumando, restando, multiplicando y dividiendo. Cada número se usa una vez como mucho y no hace falta usarlos todos. Solo valen resultados enteros y positivos.</li>
         <li>La cifra exacta vale 10 puntos. Si nadie la consigue, la aproximación más cercana vale 7. Los empates puntúan para todos.</li>
       </ul>
@@ -85,7 +85,7 @@ function renderSetup(){
       <ul>
         <li>Uno crea la sala y los demás entran con el código de 4 letras o con el enlace. Hacen falta de 2 a 8 jugadores.</li>
         <li>Cada uno responde en su móvil sin ver lo que escriben los demás. Al acabar el tiempo, o cuando todos han entregado, se revelan las respuestas a la vez.</li>
-        <li>Se puntúa como por equipos: gana la prueba quien tiene la palabra más larga o el número más cercano, y los empates puntúan para todos. En cada prueba de letras elige las vocales un jugador distinto.</li>
+        <li>Se puntúa como por equipos: gana la prueba quien tiene la palabra más larga o el número más cercano, y los empates puntúan para todos. En cada prueba de letras elige las vocales un jugador distinto; en cifras, los números salen al azar.</li>
         <li>Quien crea la sala maneja el paso entre pruebas y puede dar por válida una palabra que el diccionario rechace. Si alguien pierde la conexión, puede volver a entrar con el mismo nombre.</li>
       </ul>
       <h3>Diccionario</h3>
@@ -166,7 +166,7 @@ function newGame(){
   const players = s.mode === 'solo' ? [{name:'Tú', score:0}] : s.teams.map(n => ({name:n, score:0}));
   const plan = [];
   for (let i=0;i<s.rounds;i++) plan.push(s.kind==='letras' ? 'L' : s.kind==='cifras' ? 'C' : (i%2===0 ? 'L' : 'C'));
-  S.game = { players, plan, idx:0, history:[], letterTurns:0 };
+  S.game = { players, plan, idx:0, history:[], letterTurns:0, numberTurns:0 };
   $('#quit-btn').hidden = false;
   startRound();
 }
